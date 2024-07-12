@@ -1,0 +1,7 @@
+In this module, I have login signup of company and user.
+
+Database : It has user and company table
+
+Backend : It has login/signup of company and user
+
+Frontend : All routers are there of fronend in React
