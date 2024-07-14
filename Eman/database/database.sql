@@ -22,7 +22,7 @@ CREATE TABLE company (
 );
 
 INSERT INTO company(company.name,company.registrationNumber,company.phoneNumber,company.email,company.password)
-VALUES ("Coke",123,"123","123","123");
+VALUES ("Coke",123,"123","123","123") , ("Apple",124,"124","124","124");
 
 CREATE TABLE admin(
 	username varchar(25) PRIMARY KEY,
