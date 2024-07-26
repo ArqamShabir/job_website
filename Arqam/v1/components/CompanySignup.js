@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
 import axios from 'axios';
+import React, { useState } from 'react';
 
 const CompanySignup = () => {
     const [formData, setFormData] = useState({
+        name:'',
         email: '',
         phone_number: '',
         country_code: '',
@@ -48,6 +49,7 @@ const CompanySignup = () => {
     return (
         <form onSubmit={handleSubmit} className="form-container">
             <h2>Company Signup</h2>
+            <input type="text" name="name" placeholder="Name" onChange={handleChange} required />
             <input type="email" name="email" placeholder="Email" onChange={handleChange} required />
             <select name="country_code" onChange={handleChange} required>
                 <option value="">Select Country Code</option>
