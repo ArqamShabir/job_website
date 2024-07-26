@@ -1,0 +1,240 @@
+* {
+    box-sizing: border-box;
+    font-family: 'Inter',sans-serif;
+    /* font-weight: bold; */
+}
+
+html, body {
+    overflow-x: hidden;
+}
+
+.sidebar{
+   
+    height: 100%;
+    width: 250px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: white;
+    /* overflow-x: hidden; */
+    padding-top: 20px;
+    border-right: 1px solid  #DAE3F8;
+
+}
+
+#sidebar-img{
+    margin-left: 40px;
+}
+
+#admin-logout {
+float: right;
+padding: 6px 18px;
+border: none;
+background-color: #0a65cc;
+color: white;
+border-radius: 4px;
+cursor: pointer;
+margin-right: 20px;
+}
+
+
+.topnav {
+width: 100%;
+border-bottom: 1px solid #DAE3F8;
+position: fixed;
+top: 0;
+right: 0;
+overflow: hidden;
+background-color:white;
+padding-top: 20px; 
+padding-bottom: 20px;
+}
+
+#topnav-title{
+    margin-left: 280px;
+}
+
+#dashboard-body{
+background-color: #F2F5FA;
+font-family: 'Inter',sans-serif;
+}
+
+#admin-company-search{
+    width: 100%;
+    margin-left: 330px;
+    margin-top: 70px;
+    padding-top: 10px;
+}
+#admin-search-button-div{
+    border: 1ps solid black;
+    float: left;
+    margin-top: 38px;
+    margin-left: 10px;
+}
+
+#admin-search-button{
+    display: block;
+    color: #FFFFFF;
+    text-align: center;
+    padding: 11px 8px;
+    font-size: 13px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    width: 120px;
+    background-color: #0A65CC;
+    float: left;
+
+}
+
+
+
+#admin-search-name{
+    float: left;
+}
+
+.admin-search-input{
+    padding: 10px;
+    width: 350px;
+}
+
+#admin-search-regNo{
+    float: left;
+    margin-left: 10px;  
+}
+
+#admin-company-table{
+    margin-top: 110px;
+    margin-left: 300px;
+    width: 72%;
+    box-sizing: border-box;
+    /* border: 1px solid black; */
+
+}
+
+#admin-table-head{
+    font-size: 15px;
+}
+
+#admin-table-body{
+    font-size: 15px;
+}
+
+.admin-company-verify{
+    background-color: #3393A0;
+    float: left;
+}
+
+.admin-company-delete{
+    background-color: #C24E6A;
+    float: left;
+    margin-left: 10px;
+    /* opacity: 0.7; */
+}
+
+.admin-company-verify-delete{
+    display: block;
+    color: #FFFFFF;
+    text-align: center;
+    padding: 8px 8px;
+    font-size: 13px;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 5px;
+    margin-right: 0px;
+    border-radius: 5px;
+    margin-top: 5px;
+    width: 75px;
+}
+
+.admin-table-company-name{
+    color: #0B63F8;
+}
+
+.admin-popup-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* display: none; */
+ }
+
+
+.admin-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    float: left;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    /* width: 580px; */
+    width: 40%;
+    /* height: 230px; */
+    height: 35%;
+    color: #54595E;
+ }
+
+ .admin-popup-info{
+    position: absolute;
+    top: 6%;
+    left: 20%;
+
+
+ }
+
+ .admin-popup-info-after{
+    position: absolute;
+    top: 6%;
+    left: 20%;
+ }
+
+ .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 25px;
+    width: 6%;
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    background-color: #E5E5E5;
+    border-radius: 50px;
+ }
+
+ .yes-btn {
+    color: #fff;
+    padding: 13px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+
+    width: 86%;
+    text-align: center;
+    position: absolute;
+    bottom:  10%;
+    left: 7%;
+    right: 7%;
+
+ }
+
+ #yes-verify-btn{
+    background-color: #4487FC;
+ }
+
+ #yes-delete-btn{
+    background-color: #C24E6A;
+ }
+
+ .admin-popup-icon{
+    /* float: left; */
+    position:absolute;
+    top: 5%;
+    left: 2%;
+ }
+
+
