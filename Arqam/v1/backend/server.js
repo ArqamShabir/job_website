@@ -3,9 +3,9 @@ const bodyParser = require('body-parser');
 const mysql = require('mysql2');
 const cors = require('cors');
 const session = require('express-session');
-
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 
@@ -89,12 +89,28 @@ app.post('/company-login', (req, res) => {
             return;
         }
         if (results.length > 0) {
-            res.status(200).send('Company logged in successfully');
+            const company = results[0];
+            res.status(200).json({ message: 'Company logged in successfully', company });
         } else {
             res.status(400).send('Invalid credentials');
         }
     });
 });
+
+
+app.get('/company-status/:email', (req, res) => {
+    const { email } = req.params;
+    const sql = 'SELECT c_status FROM companies WHERE email = ?';
+    db.query(sql, [email], (err, result) => {
+        if (err) return res.status(500).send(err);
+        if (result.length > 0) {
+            res.send(result[0]);
+        } else {
+            res.status(404).send('Company not found');
+        }
+    });
+});
+
 
 app.post('/admin-login' , (req,res) => {
     const {username, password} = req.body;
@@ -159,41 +175,91 @@ app.post('/admin-dashboard-verify/:registrationNumber' , (req,res) =>{
 
 app.delete('/admin-dashboard-delete/:registrationNumber', (req, res) => {
     const { registrationNumber } = req.params;
-    const sql = 'DELETE FROM companies WHERE registrationNumber = ?';
-    db.query(sql, [registrationNumber], (err, results) => {
-      if (err) {
-        console.error('Error deleting company:', err);
-        return res.status(500).send('Internal server error');
-      }
-      
-    if (results.length==0) {
-        return res.status(404).send(`Company with registration number ${registrationNumber} not found`);
-    } else {
-        res.status(200).send(`Company with registeration number ${registrationNumber} deleted`);
-    }//if
 
+    // First, delete all records related to job_skills
+    const deleteJobSkillsSql = 'DELETE FROM job_skills WHERE j_id IN (SELECT j_id FROM jobs WHERE c_registrationNo = ?)';
+    db.query(deleteJobSkillsSql, [registrationNumber], (err) => {
+        if (err) {
+            console.error('Error deleting job skills:', err);
+            return res.status(500).send('Internal server error');
+        }
+
+        // Next, delete all records related to job_days
+        const deleteJobDaysSql = 'DELETE FROM job_days WHERE j_id IN (SELECT j_id FROM jobs WHERE c_registrationNo = ?)';
+        db.query(deleteJobDaysSql, [registrationNumber], (err) => {
+            if (err) {
+                console.error('Error deleting job days:', err);
+                return res.status(500).send('Internal server error');
+            }
+
+            // Then, delete all jobs related to the company
+            const deleteJobsSql = 'DELETE FROM jobs WHERE c_registrationNo = ?';
+            db.query(deleteJobsSql, [registrationNumber], (err) => {
+                if (err) {
+                    console.error('Error deleting jobs:', err);
+                    return res.status(500).send('Internal server error');
+                }
+
+                // Finally, get the company record to retrieve the logo filename
+                const getCompanySql = 'SELECT logo FROM companies WHERE registrationNumber = ?';
+                db.query(getCompanySql, [registrationNumber], (err, results) => {
+                    if (err) {
+                        console.error('Error fetching company:', err);
+                        return res.status(500).send('Internal server error');
+                    }
+
+                    if (results.length === 0) {
+                        return res.status(404).send(`Company with registration number ${registrationNumber} not found`);
+                    }
+
+                    const logo = results[0].logo;
+
+                    // Proceed with deleting the company record
+                    const deleteCompanySql = 'DELETE FROM companies WHERE registrationNumber = ?';
+                    db.query(deleteCompanySql, [registrationNumber], (err) => {
+                        if (err) {
+                            console.error('Error deleting company:', err);
+                            return res.status(500).send('Internal server error');
+                        }
+
+                        if (logo) {
+                            // Delete the image file from the uploads folder
+                            const filePath = path.join(__dirname, 'uploads', logo);
+                            fs.unlink(filePath, (err) => {
+                                if (err) {
+                                    console.error('Error deleting image file:', err);
+                                }
+                            });
+                        }
+
+                        res.status(200).send(`Company with registration number ${registrationNumber} and all related jobs deleted`);
+                    });
+                });
+            });
+        });
     });
-  });
+});
 
-  app.get('/admin-dashboard-search',  (req, res) => {
+
+app.get('/admin-dashboard-search',  (req, res) => {
     const { name, registrationNumber } = req.query;
 
-    let sql = 'SELECT companies.name, companies.register_date, companies.phoneNumber, companies.registrationNumber, companies.email FROM companies ';
+    let sql = 'SELECT companies.name, companies.register_date, companies.phoneNumber, companies.registrationNumber, companies.email, companies.c_status FROM companies ';
     const params = [];
 
     if (name) {
         sql += ' WHERE name LIKE ?';
         params.push(`%${name}%`);
-      }
+    }
     
-      if (registrationNumber) {
+    if (registrationNumber) {
         if (name) {
           sql += ' AND registrationNumber = ?';
         } else {
           sql += ' WHERE registrationNumber = ?';
         }
         params.push(registrationNumber);
-      }
+    }
 
     db.query(sql, params, (err, results) => {
         if (err) {
@@ -205,8 +271,75 @@ app.delete('/admin-dashboard-delete/:registrationNumber', (req, res) => {
         res.send(results);
     });
 });
+app.post('/admin-logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Error logging out:', err);
+            return res.status(500).send('Server error');
+        }
+        res.status(200).send('Logged out successfully');
+    });
+});
+
+app.post('/post-job', (req, res) => {
+    const { jobTitle, jobCategory, city, education, experience, days, hours, age, gender, minSalary, maxSalary, vacancies, description, skills, c_registrationNo } = req.body;
+
+    // Insert job data into the jobs table
+    const sqlInsertJob = 'INSERT INTO jobs (job_title, vacancies, min_salary, max_salary, job_hours, preferred_gender, job_description, age, job_city, education, c_registrationNo, category, experience) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+    
+    db.query(sqlInsertJob, [jobTitle, vacancies, minSalary, maxSalary, hours, gender, description, age, city, education, c_registrationNo, jobCategory, experience], (err, result) => {
+        if (err) return res.status(500).send(err);
+
+        const jobId = result.insertId;
+
+        // Insert job days into the job_days table
+        const sqlInsertDays = 'INSERT INTO job_days (j_id, day) VALUES ?';
+        const jobDaysData = days.map(day => [jobId, day]);
+
+        db.query(sqlInsertDays, [jobDaysData], (err, result) => {
+            if (err) return res.status(500).send(err);
+
+            // Insert job skills into the job_skills table
+            const sqlInsertSkills = 'INSERT INTO job_skills (j_id, skill) VALUES ?';
+            const jobSkillsData = skills.map(skill => [jobId, skill]);
+
+            db.query(sqlInsertSkills, [jobSkillsData], (err, result) => {
+                if (err) return res.status(500).send(err);
+                res.status(200).send('Job posted successfully');
+            });
+        });
+    });
+});
+
+app.get('/company-info/:registrationNumber', (req, res) => {
+    const { registrationNumber } = req.params;
+
+    // Query to get company name and job count
+    const sql = `
+        SELECT companies.name, COUNT(jobs.j_id) AS jobCount
+        FROM companies
+        LEFT JOIN jobs ON companies.registrationNumber = jobs.c_registrationNo
+        WHERE companies.registrationNumber = ?
+        GROUP BY companies.name
+    `;
+    
+    db.query(sql, [registrationNumber], (err, results) => {
+        if (err) {
+            console.error('Error fetching company info:', err);
+            return res.status(500).send('Internal server error');
+        }
+
+        if (results.length > 0) {
+            res.send(results[0]);
+        } else {
+            res.status(404).send('Company not found');
+        }
+    });
+});
+
+
 
 const PORT = 3001;
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
