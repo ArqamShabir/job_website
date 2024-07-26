@@ -1,9 +1,10 @@
 import axios from 'axios';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const CompanySignup = () => {
     const [formData, setFormData] = useState({
-        name:'',
+        name: '',
         email: '',
         phone_number: '',
         country_code: '',
@@ -12,6 +13,7 @@ const CompanySignup = () => {
         registration_number: '',
         logo: ''
     });
+    const navigate = useNavigate();
 
     const handleChange = e => {
         if (e.target.name === 'logo') {
@@ -40,6 +42,7 @@ const CompanySignup = () => {
         })
             .then(response => {
                 alert(response.data);
+                navigate(`/CompanyLogin`);
             })
             .catch(error => {
                 console.error("There was an error registering the company!", error);
