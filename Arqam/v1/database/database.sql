@@ -33,3 +33,41 @@ CREATE TABLE admin(
 
 INSERT INTO admin(admin.username,admin.password) 
 VALUES("admin","admin");
+
+
+-- Jobs Table
+CREATE TABLE IF NOT EXISTS jobs (
+    j_id INT AUTO_INCREMENT PRIMARY KEY,
+    job_title VARCHAR(100) NOT NULL,
+    vacancies INT NOT NULL,
+    min_salary DECIMAL(10, 2) NOT NULL,
+    max_salary DECIMAL(10, 2) NOT NULL,
+    job_hours INT NOT NULL,
+    preferred_gender ENUM('Male', 'Female', 'Any'),
+    job_description TEXT NOT NULL,
+    age INT NOT NULL,
+    job_city VARCHAR(100) NOT NULL,
+    education VARCHAR(100) NOT NULL,
+    c_registrationNo INT(15),
+    category VARCHAR(100) NOT NULL,
+    experience VARCHAR(100) NOT NULL,
+    j_status BOOLEAN NOT NULL DEFAULT TRUE,
+    j_date DATE DEFAULT CURRENT_DATE,
+    FOREIGN KEY (c_registrationNo) REFERENCES companies(registrationNumber)
+);
+
+-- Job Days Table
+CREATE TABLE IF NOT EXISTS job_days (
+    j_id INT AUTO_INCREMENT,
+    day VARCHAR(20) NOT NULL,
+    PRIMARY KEY (j_id, day),
+    FOREIGN KEY (j_id) REFERENCES jobs(j_id)
+);
+
+
+CREATE TABLE IF NOT EXISTS job_skills (
+    j_id INT AUTO_INCREMENT,
+    skill VARCHAR(100) NOT NULL,
+    PRIMARY KEY (j_id, skill),
+    FOREIGN KEY (j_id) REFERENCES jobs(j_id)
+);
