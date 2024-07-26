@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
 import axios from 'axios';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const CompanyLogin = () => {
     const [formData, setFormData] = useState({
         email: '',
         password: ''
     });
+    const navigate = useNavigate();
 
     const handleChange = e => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -15,7 +17,10 @@ const CompanyLogin = () => {
         e.preventDefault();
         axios.post('http://localhost:3001/company-login', formData)
             .then(response => {
-                alert(response.data);
+                const { message, company } = response.data;
+                alert(message);
+                localStorage.setItem('companyRegistrationNumber', company.registrationNumber);
+                navigate(`/company-home/${formData.email}`);
             })
             .catch(error => {
                 console.error("There was an error logging in the company!", error);
