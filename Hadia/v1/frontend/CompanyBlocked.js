@@ -10,7 +10,7 @@ const CompanyBlocked = () => {
                 <div className="box">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                         <p>Hello Imtiaz</p>
-                        <button id="c-blocked-logout" ><a href='CompanyLogin.js'>Logout</a></button>
+                        <button id="c-blocked-logout" onClick={() => window.location.href = 'CLogin.html'} > Logout </button>
                     </div>
                     <p>
                         Company verification in progress. Please wait until our team has completed
