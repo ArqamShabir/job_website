@@ -71,3 +71,31 @@ CREATE TABLE IF NOT EXISTS job_skills (
     PRIMARY KEY (j_id, skill),
     FOREIGN KEY (j_id) REFERENCES jobs(j_id)
 );
+
+-- Create the applicant table
+CREATE TABLE applicant (
+    app_id INT(9) AUTO_INCREMENT PRIMARY KEY,
+    app_gender ENUM('Male', 'Female') NOT NULL,
+    app_resume VARCHAR(255) NOT NULL,  -- Resume column added
+    app_name VARCHAR(50) NOT NULL,
+    app_email VARCHAR(100) NOT NULL,
+    app_age INT(2) NOT NULL,
+    app_education VARCHAR(200) NOT NULL,
+    app_status BOOLEAN NOT NULL DEFAULT false,
+    app_experience VARCHAR(150) NOT NULL,
+    app_phoneNo VARCHAR(15) NOT NULL,
+    ats_score INT(2) NOT NULL DEFAULT 0,
+    notification VARCHAR(200) NOT NULL DEFAULT "",
+    j_id INT(11),
+    c_registrationNo INT(15),
+    CONSTRAINT FOREIGN KEY (j_id) REFERENCES jobs(j_id),
+    CONSTRAINT FOREIGN KEY (c_registrationNo) REFERENCES companies(registrationNumber)
+);
+
+-- Create the proofs table
+CREATE TABLE proofs (
+    app_id INT(9),
+    proof VARCHAR(255) NOT NULL,  -- Proof column
+    PRIMARY KEY (app_id, proof),  -- Composite primary key
+    CONSTRAINT FOREIGN KEY (app_id) REFERENCES applicant(app_id)
+);
