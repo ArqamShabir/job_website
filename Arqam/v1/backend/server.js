@@ -7,6 +7,8 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
+
+
 const app = express();
 
 app.use(cors());
@@ -31,13 +33,13 @@ db.connect(err => {
 });
 
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/');
+    destination: (req, file, cb) => {
+      cb(null, 'uploads/');
     },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
-});
+    filename: (req, file, cb) => {
+      cb(null, `${Date.now()}-${file.originalname}`);
+    },
+  });
 
 app.post('/signup', (req, res) => {
     const { first_name, last_name, gender, email, country_code, phone_number, password } = req.body;
@@ -62,6 +64,7 @@ app.post('/login', (req, res) => {
 });
 
 const upload = multer({ storage: storage });
+
 
 app.post('/company-signup', upload.single('logo'), (req, res) => {
     const {name, email, phone_number, country_code, password, registration_number } = req.body;
@@ -336,6 +339,145 @@ app.get('/company-info/:registrationNumber', (req, res) => {
         }
     });
 });
+
+
+
+
+
+//Emans trying
+// server.js or app.js
+
+app.get('/show-user-jobs', (req, res) => {
+    const { category } = req.query;
+    // let query = `SELECT jobs.*, companies.name, companies.logo FROM jobs JOIN companies ON (jobs.c_registrationNo = companies.registrationNumber)`;
+  
+    // if ( category !== 'Other') {
+    //   query += ` WHERE jobs.category = ?`;
+    // }
+
+    let query ;
+    if (category === 'Other') {
+        query = 'SELECT * FROM jobs';
+    } else {
+        query = 'SELECT * FROM jobs WHERE category = ?';
+    }
+
+    db.query(query, [category], (err, results) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Internal Server Error');
+        } else {
+            res.send(results);
+    }
+    });
+  
+    // db.query(query, [category], (err, results) => {
+    //   if (err) {
+    //     console.error('Error fetching job posts:', err);
+    //     res.status(500).send('Failed to fetch job posts');
+    //   } else {
+    //     res.send( results);
+    //   }
+       
+      
+    // });
+
+
+  });
+
+
+
+
+app.get('/one-job/:jobId', (req, res) => {
+    const jobId = req.params.jobId;
+    const query = `SELECT jobs.*, companies.name , companies.logo FROM  jobs JOIN  companies ON (jobs.c_registrationNo = companies.registrationNumber) WHERE  jobs.j_id = ?;`;
+  
+    db.query(query, [jobId], (err, results) => {
+      if (err) {
+        console.error('Error fetching job details:', err);
+        res.status(500).send('Failed to fetch job details');
+      } 
+
+      if (results.length > 0) {
+        res.send(results[0]);
+    } else {
+        res.status(404).send('Company not found');
+    }
+
+    });
+  });
+
+  app.get('/one-job/:jobId/skills', (req, res) => {
+    const jobId = req.params.jobId;
+    const query = `SELECT skill FROM  job_skills WHERE  j_id =?
+    `;
+    db.query(query, [jobId], (err, results) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send({ message: 'Error retrieving skills' });
+      } else {
+        const skills = results.map((row) => row.skill);
+        res.send(skills);
+      }
+    });
+  });
+
+  app.get('/one-job/:jobId/days', (req, res) => {
+    const jobId = req.params.jobId;
+    const query = `SELECT day FROM  job_days WHERE  j_id =?`;
+    db.query(query, [jobId], (err, results) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send({ message: 'Error retrieving days' });
+      } else {
+        const days = results.map((row) => row.day);
+        res.send(days);
+      }
+    });
+  });
+  
+
+
+  app.post('/user-apply-job', upload.fields([{ name: 'resume', maxCount: 1 }, { name: 'proofs', maxCount: 10 }]), (req, res) => {
+    const {
+      name,
+      gender,
+      email,
+      phoneNo,
+      age,
+      education,
+      experience,
+      j_id,
+      c_registrationNo
+    } = req.body;
+  
+    const resume = req.files['resume'][0].path;
+    const proofs = req.files['proofs'].map(file => file.path);
+  
+    // Insert applicant details into the applicant table
+    db.query('INSERT INTO applicant (app_resume, app_gender, app_name, app_email, app_age, app_education, app_experience, app_phoneNo, j_id, c_registrationNo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+        [resume, gender, name, email, age, education, experience, phoneNo, j_id, c_registrationNo], (error, results) => {
+      if (error) {
+        console.error('Error inserting applicant data:', error);
+        return res.status(500).send('Error inserting applicant data');
+      }
+  
+      const appId = results.insertId; // Get the inserted applicant's ID
+  
+      // Insert each proof into the proofs table
+      const proofValues = proofs.map(proof => [appId, proof]);
+  
+      db.query('INSERT INTO proofs (app_id, proof) VALUES ?', [proofValues], (error) => {
+        if (error) {
+          console.error('Error inserting proofs:', error);
+          return res.status(500).send('Error inserting proofs');
+        }
+  
+        res.status(200).send('Application submitted successfully');
+      });
+    });
+  });
+  
 
 
 
