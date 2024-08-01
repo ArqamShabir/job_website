@@ -1,1 +1,116 @@
+.shadow {
+    width: 100%;
+    height: 100vh;
+    background-color: #000000a1;
+    position: fixed;
+    z-index: 100;
+    background-blend-mode: overlay;
+}
+
+.message * {
+    font-weight: 600;
+}
+
+.message {
+    position: absolute;
+    z-index: 150;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.message .box {
+    background-color: #fff;
+    width: 50%;
+    margin: 0 auto;
+    padding: 30px 30px 60px;
+    border-radius: 12px;
+}
+
+.message .box button {
+    color: #fff;
+    background-color: #6FCF97;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    padding: 5px 10px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header .logo {
+    display: flex;
+    align-items: center;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+}
+
+.c_home_main {
+    padding: 20px;
+}
+
+.jobbox {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.jobs_table {
+    margin-top: 20px;
+}
+
+.table {
+    width: 100%;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.table-cell {
+    flex: 1;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.footer {
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+}
+
+.footer-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.footer .logo {
+    display: flex;
+    align-items: center;
+}
+
+.footer-contact {
+    text-align: center;
+}
+
+.footer-separator {
+    width: 80%;
+    margin: 20px 0;
+}
+
+.copyright {
+    text-align: center;
+    margin-top: 10px;
+}
 
