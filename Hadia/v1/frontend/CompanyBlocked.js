@@ -86,4 +86,3 @@ const CompanyBlocked = () => {
 };
 
 export default CompanyBlocked;
-
