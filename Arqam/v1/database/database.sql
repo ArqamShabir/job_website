@@ -72,6 +72,7 @@ CREATE TABLE IF NOT EXISTS job_skills (
     FOREIGN KEY (j_id) REFERENCES jobs(j_id)
 );
 
+
 -- Create the applicant table
 CREATE TABLE applicant (
     app_id INT(9) AUTO_INCREMENT PRIMARY KEY,
@@ -99,3 +100,14 @@ CREATE TABLE proofs (
     PRIMARY KEY (app_id, proof),  -- Composite primary key
     CONSTRAINT FOREIGN KEY (app_id) REFERENCES applicant(app_id)
 );
+
+CREATE TABLE apply(
+    js_id INT ,
+    j_id INT,
+    PRIMARY KEY(js_id, j_id),
+    FOREIGN KEY (j_id) REFERENCES jobs(j_id),
+    FOREIGN KEY (js_id) REFERENCES users(js_id)
+);
+
+
+
