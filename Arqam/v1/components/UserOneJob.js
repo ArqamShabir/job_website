@@ -1,16 +1,19 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import './styleHomePage2.css'; // Ensure you have this CSS file with proper styles
+import Header from './Header';
+import './styleHomePage2.css';
 
 const UserOneJob = () => {
   const { jobId } = useParams();
+  const js_id = localStorage.getItem('js_id');
   
   const [job, setJob] = useState(null);
   const [error, setError] = useState('');
   const [skills, setSkills] = useState([]);
   const [days, setDays] = useState([]);
   const [loading, setLoading] = useState(true); // Added loading state
+  const [hasApplied, setHasApplied] = useState(false);
 
   //for applicants
   const [name, setName] = useState('');
@@ -66,7 +69,19 @@ const UserOneJob = () => {
         });
     }
   }, [job]);
-
+  
+  useEffect(() => {
+    if (js_id && jobId) {
+      axios.get(`http://localhost:3001/user-has-applied/${jobId}/${js_id}`)
+        .then(response => {
+          setHasApplied(response.data.hasApplied);
+        })
+        .catch(error => {
+          console.error('Error checking application status:', error);
+        });
+    }
+  }, [js_id, jobId]);
+  
   const handleApplyForm = () => {
       setShowApplyForm(true);
   };
@@ -96,6 +111,8 @@ const UserOneJob = () => {
     formData.append('experience', experience);
     formData.append('j_id', jobId);
     formData.append('c_registrationNo', registrationNumber);
+    formData.append('js_id', js_id);
+
     if (resume) formData.append('resume', resume);
     for (let i = 0; i < proofs.length; i++) {
       formData.append('proofs', proofs[i]);
@@ -108,6 +125,7 @@ const UserOneJob = () => {
     }).then(response => {
         console.log(response.data);
         setShowApplyForm(false);
+        setHasApplied(true);
       })
       .catch(error => {
         console.error('There was an error submitting the application!', error);
@@ -134,15 +152,21 @@ const UserOneJob = () => {
 
 return (
   <div>
+      <Header />
     <div id="uOneJobContent">
       <div id="job_head">
         <div id="job_subhead">
           <h3 id="j_h_h3">{job.job_title || 'N/A'}</h3>
           <h4 id="j_h_h4">{job.name || 'N/A'}</h4>
         </div>
-        <button className="applyNow1" id="applyNowBut" onClick={() => handleApplyForm()}>
-          Apply Now
-        </button>
+        <button 
+            className="applyNow1" 
+            id="applyNowBut" 
+            onClick={handleApplyForm} 
+            disabled={hasApplied} 
+          >
+            {hasApplied ? 'Applied' : 'Apply Now'}
+          </button>
       </div>
 
       <div className="job_descrip">
@@ -362,7 +386,7 @@ return (
                     name="proof"
                     onChange={(e) => setProofs(Array.from(e.target.files))}
                     multiple
-                    required
+                   required
                   />
                 </div> 
                 <div className="form-row">
@@ -371,8 +395,19 @@ return (
               </form>
               <button className="closebutton" id="close-btn-verify" onClick={() => setShowApplyForm(false)} >&times;</button>
 
-            </div>    
+            </div>   
+            
+            
+
+           
+            
+
+
     )};
+
+
+
+    
 
     {showAUSpopup && (
             <div className="admin-popup-container">
@@ -389,8 +424,9 @@ return (
       
     )};
 
-
+{/* <Footer /> */}
 </div>
+
 
     
 );
